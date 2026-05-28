@@ -13,8 +13,17 @@ class QuestionsScreen extends StatefulWidget {
 
 class _QuestionsScreenState extends State<QuestionsScreen> {
   int currentQuestionIndex = 0;
+  int score = 0;
 
-  void answerQuestion() {
+  void answerQuestion(String selectedAnswer) {
+
+    final correctAnswer =
+        questions[currentQuestionIndex].answers[0];
+
+    if (selectedAnswer == correctAnswer) {
+      score++;
+    }
+
     setState(() {
       currentQuestionIndex++;
     });
@@ -23,28 +32,37 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   @override
   Widget build(BuildContext context) {
 
-    // Quiz End Screen
+    // END SCREEN
     if (currentQuestionIndex >= questions.length) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'End of Quiz!',
-              style: TextStyle(
+
+            const Icon(
+              Icons.emoji_events,
+              color: Colors.amber,
+              size: 100,
+            ),
+
+            const SizedBox(height: 20),
+
+            Text(
+              'Your Score: $score/${questions.length}',
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
-              textAlign: TextAlign.center,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
 
             ElevatedButton(
               onPressed: () {
                 setState(() {
                   currentQuestionIndex = 0;
+                  score = 0;
                 });
               },
               child: const Text('Restart Quiz'),
@@ -65,7 +83,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
 
-            // Question Counter
+            // PROGRESS TEXT
             Text(
               'Question ${currentQuestionIndex + 1}/${questions.length}',
               style: const TextStyle(
@@ -75,14 +93,25 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
               textAlign: TextAlign.center,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
 
-            // Question Text
+            // PROGRESS BAR
+            LinearProgressIndicator(
+              value:
+                  (currentQuestionIndex + 1) / questions.length,
+              backgroundColor: Colors.white24,
+              color: Colors.amber,
+              minHeight: 10,
+            ),
+
+            const SizedBox(height: 40),
+
+            // QUESTION
             Text(
               currentQuestion.text,
               style: const TextStyle(
-                color: Color.fromARGB(255, 235, 228, 228),
-                fontSize: 24,
+                color: Colors.white,
+                fontSize: 26,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
@@ -90,13 +119,15 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
             const SizedBox(height: 30),
 
-            // Answer Buttons
+            // ANSWERS
             ...currentQuestion.shuffledAnswers.map((answer) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: AnswerButton(
                   answerText: answer,
-                  onTap: answerQuestion,
+                  onTap: () {
+                    answerQuestion(answer);
+                  },
                 ),
               );
             }),
