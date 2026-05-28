@@ -12,7 +12,7 @@ class QuestionsScreen extends StatefulWidget {
 }
 
 class _QuestionsScreenState extends State<QuestionsScreen> {
-  var currentQuestionIndex = 0;
+  int currentQuestionIndex = 0;
 
   void answerQuestion() {
     setState(() {
@@ -22,16 +22,34 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    // Quiz End Screen
     if (currentQuestionIndex >= questions.length) {
-      return const Center(
-        child: Text(
-          'End of Quiz!',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'End of Quiz!',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  currentQuestionIndex = 0;
+                });
+              },
+              child: const Text('Restart Quiz'),
+            ),
+          ],
         ),
       );
     }
@@ -46,6 +64,20 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+
+            // Question Counter
+            Text(
+              'Question ${currentQuestionIndex + 1}/${questions.length}',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 18,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 20),
+
+            // Question Text
             Text(
               currentQuestion.text,
               style: const TextStyle(
@@ -55,13 +87,20 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
               ),
               textAlign: TextAlign.center,
             ),
+
             const SizedBox(height: 30),
-            ...currentQuestion.  get shuffledAnswers().map((answer) {
-              return AnswerButton(
-                answerText: answer,
-                onTap: answerQuestion,
+
+            // Answer Buttons
+            ...currentQuestion.shuffledAnswers.map((answer) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: AnswerButton(
+                  answerText: answer,
+                  onTap: answerQuestion,
+                ),
               );
             }),
+
           ],
         ),
       ),
