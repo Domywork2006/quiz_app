@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:quiz_app/data/demoquestion.dart';
 
@@ -17,11 +19,67 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
   String? selectedAnswer;
 
+  int timeLeft = 10;
+
+  Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    startTimer();
+  }
+
+  void startTimer() {
+
+    timer?.cancel();
+
+    timeLeft = 10;
+
+    timer = Timer.periodic(
+      const Duration(seconds: 1),
+
+      (timer) {
+
+        if (timeLeft > 0) {
+
+          setState(() {
+            timeLeft--;
+          });
+
+        } else {
+
+          timer.cancel();
+
+          answerQuestion('');
+        }
+      },
+    );
+  }
+
+  void nextQuestion() {
+
+    timer?.cancel();
+
+    setState(() {
+      currentQuestionIndex++;
+      selectedAnswer = null;
+    });
+
+    if (currentQuestionIndex <
+        questions.length) {
+
+      startTimer();
+    }
+  }
+
   void answerQuestion(String answer) {
 
     if (selectedAnswer != null) {
       return;
     }
+
+    timer?.cancel();
 
     setState(() {
       selectedAnswer = answer;
@@ -37,12 +95,10 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
     Future.delayed(
       const Duration(seconds: 1),
+
       () {
 
-        setState(() {
-          currentQuestionIndex++;
-          selectedAnswer = null;
-        });
+        nextQuestion();
 
       },
     );
@@ -67,6 +123,14 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     }
 
     return const Color(0xFF6C63FF);
+  }
+
+  @override
+  void dispose() {
+
+    timer?.cancel();
+
+    super.dispose();
   }
 
   @override
@@ -119,10 +183,14 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
               onPressed: () {
 
                 setState(() {
+
                   currentQuestionIndex = 0;
                   score = 0;
                   selectedAnswer = null;
+
                 });
+
+                startTimer();
 
               },
 
@@ -180,6 +248,41 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
           children: [
 
+            // TIMER
+            Center(
+              child: Container(
+
+                padding:
+                    const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+
+                decoration: BoxDecoration(
+
+                  color: timeLeft <= 3
+                      ? Colors.red
+                      : Colors.amber,
+
+                  borderRadius:
+                      BorderRadius.circular(20),
+                ),
+
+                child: Text(
+
+                  '$timeLeft s',
+
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
             Text(
               'Question ${currentQuestionIndex + 1}/${questions.length}',
 
@@ -216,7 +319,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
             const SizedBox(height: 50),
 
-            // PREMIUM QUESTION CARD
+            // QUESTION CARD
             Container(
 
               padding:
