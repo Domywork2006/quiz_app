@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/data/demoquestion.dart';
 
@@ -14,14 +15,21 @@ class QuestionsScreen extends StatefulWidget {
 
 class _QuestionsScreenState extends State<QuestionsScreen> {
 
+  // QUIZ STATE
   int currentQuestionIndex = 0;
   int score = 0;
 
+  // ANSWERS
   String? selectedAnswer;
+  List<String> selectedAnswers = [];
 
+  // TIMER
   int timeLeft = 10;
-
   Timer? timer;
+
+  // AUDIO
+  final AudioPlayer audioPlayer =
+      AudioPlayer();
 
   @override
   void initState() {
@@ -30,6 +38,16 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     startTimer();
   }
 
+  // AUDIO FUNCTION
+  Future<void> playSound(
+      String soundPath) async {
+
+    await audioPlayer.play(
+      AssetSource(soundPath),
+    );
+  }
+
+  // TIMER FUNCTION
   void startTimer() {
 
     timer?.cancel();
@@ -57,13 +75,16 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     );
   }
 
+  // NEXT QUESTION
   void nextQuestion() {
 
     timer?.cancel();
 
     setState(() {
+
       currentQuestionIndex++;
       selectedAnswer = null;
+
     });
 
     if (currentQuestionIndex <
@@ -73,7 +94,8 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     }
   }
 
-  void answerQuestion(String answer) {
+  // ANSWER FUNCTION
+  void answerQuestion(String answer) async {
 
     if (selectedAnswer != null) {
       return;
@@ -82,28 +104,43 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     timer?.cancel();
 
     setState(() {
+
       selectedAnswer = answer;
+
+      selectedAnswers.add(answer);
+
     });
 
     final correctAnswer =
         questions[currentQuestionIndex]
             .answers[0];
 
+    // CORRECT ANSWER
     if (answer == correctAnswer) {
+
       score++;
+
+      await playSound(
+        'audio/correct_sound.wav',
+      );
+
+    } else {
+
+      await playSound(
+        'audio/wrong_sound.wav',
+      );
     }
 
     Future.delayed(
       const Duration(seconds: 1),
 
       () {
-
         nextQuestion();
-
       },
     );
   }
 
+  // ANSWER COLORS
   Color getAnswerColor(String answer) {
 
     if (selectedAnswer == null) {
@@ -125,114 +162,238 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     return const Color(0xFF6C63FF);
   }
 
+  // RESTART QUIZ
+  void restartQuiz() {
+
+    setState(() {
+
+      currentQuestionIndex = 0;
+      score = 0;
+
+      selectedAnswer = null;
+
+      selectedAnswers.clear();
+
+    });
+
+    startTimer();
+  }
+
   @override
   void dispose() {
 
     timer?.cancel();
 
+    audioPlayer.dispose();
+
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
+  // RESULT SCREEN
+  Widget buildResultScreen() {
 
-    if (currentQuestionIndex >=
-        questions.length) {
+    return Padding(
 
-      return Center(
-        child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
+      padding: const EdgeInsets.all(20),
 
-          children: [
+      child: Column(
 
-            const Icon(
-              Icons.emoji_events,
+        children: [
+
+          const SizedBox(height: 60),
+
+          const Icon(
+            Icons.emoji_events,
+            color: Colors.amber,
+            size: 100,
+          ),
+
+          const SizedBox(height: 20),
+
+          Text(
+            'Your Score: $score/${questions.length}',
+
+            style: const TextStyle(
               color: Colors.amber,
-              size: 100,
+              fontSize: 35,
+              fontWeight: FontWeight.bold,
             ),
+          ),
 
-            const SizedBox(height: 30),
+          const SizedBox(height: 30),
 
-            const Text(
-              'Quiz Completed!',
+          Expanded(
 
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 34,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: ListView.builder(
 
-            const SizedBox(height: 20),
+              itemCount: questions.length,
 
-            Text(
-              'Your Score: $score/${questions.length}',
+              itemBuilder: (context, index) {
 
-              style: const TextStyle(
-                color: Colors.amber,
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+                final question =
+                    questions[index];
 
-            const SizedBox(height: 40),
+                final correctAnswer =
+                    question.answers[0];
 
-            ElevatedButton.icon(
+                final userAnswer =
+                    selectedAnswers[index];
 
-              onPressed: () {
+                final isCorrect =
+                    userAnswer ==
+                        correctAnswer;
 
-                setState(() {
+                return Container(
 
-                  currentQuestionIndex = 0;
-                  score = 0;
-                  selectedAnswer = null;
+                  margin:
+                      const EdgeInsets.only(
+                    bottom: 20,
+                  ),
 
-                });
+                  padding:
+                      const EdgeInsets.all(20),
 
-                startTimer();
+                  decoration: BoxDecoration(
 
+                    color:
+                        const Color.fromARGB(
+                            40,
+                            255,
+                            255,
+                            255),
+
+                    borderRadius:
+                        BorderRadius.circular(
+                            25),
+                  ),
+
+                  child: Column(
+
+                    crossAxisAlignment:
+                        CrossAxisAlignment
+                            .start,
+
+                    children: [
+
+                      Row(
+
+                        children: [
+
+                          Icon(
+
+                            isCorrect
+                                ? Icons.check_circle
+                                : Icons.cancel,
+
+                            color: isCorrect
+                                ? Colors.green
+                                : Colors.red,
+                          ),
+
+                          const SizedBox(
+                              width: 10),
+
+                          Expanded(
+
+                            child: Text(
+
+                              question.text,
+
+                              style:
+                                  const TextStyle(
+                                color:
+                                    Colors.white,
+                                fontSize: 18,
+                                fontWeight:
+                                    FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      Text(
+                        'Your Answer: $userAnswer',
+
+                        style: TextStyle(
+                          color: isCorrect
+                              ? Colors.green
+                              : Colors.red,
+
+                          fontSize: 16,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        'Correct Answer: $correctAnswer',
+
+                        style: const TextStyle(
+                          color: Colors.amber,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
               },
+            ),
+          ),
 
-              icon: const Icon(
-                Icons.restart_alt,
+          ElevatedButton.icon(
+
+            onPressed: restartQuiz,
+
+            icon: const Icon(
+              Icons.restart_alt,
+            ),
+
+            label: const Text(
+              'Restart Quiz',
+            ),
+
+            style:
+                ElevatedButton.styleFrom(
+
+              backgroundColor:
+                  Colors.amber,
+
+              foregroundColor:
+                  Colors.black,
+
+              padding:
+                  const EdgeInsets.symmetric(
+                horizontal: 30,
+                vertical: 15,
               ),
 
-              label: const Text(
-                'Restart Quiz',
-              ),
+              shape:
+                  RoundedRectangleBorder(
 
-              style:
-                  ElevatedButton.styleFrom(
-
-                backgroundColor:
-                    Colors.amber,
-
-                foregroundColor:
-                    Colors.black,
-
-                padding:
-                    const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 15,
-                ),
-
-                shape:
-                    RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(30),
-                ),
+                borderRadius:
+                    BorderRadius.circular(
+                        30),
               ),
             ),
-          ],
-        ),
-      );
-    }
+          ),
+
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  // QUIZ SCREEN
+  Widget buildQuizScreen() {
 
     final currentQuestion =
         questions[currentQuestionIndex];
 
     return SizedBox(
+
       width: double.infinity,
 
       child: Container(
@@ -240,6 +401,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
         margin: const EdgeInsets.all(25),
 
         child: Column(
+
           mainAxisAlignment:
               MainAxisAlignment.center,
 
@@ -250,6 +412,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
             // TIMER
             Center(
+
               child: Container(
 
                 padding:
@@ -283,7 +446,9 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
             const SizedBox(height: 20),
 
+            // QUESTION COUNT
             Text(
+
               'Question ${currentQuestionIndex + 1}/${questions.length}',
 
               style: const TextStyle(
@@ -297,6 +462,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
             const SizedBox(height: 15),
 
+            // PROGRESS BAR
             ClipRRect(
 
               borderRadius:
@@ -360,6 +526,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                 ),
 
                 child: Text(
+
                   currentQuestion.text,
 
                   key: ValueKey(
@@ -382,6 +549,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
             const SizedBox(height: 40),
 
+            // ANSWERS
             ...currentQuestion
                 .shuffledAnswers
                 .map((answer) {
@@ -395,7 +563,12 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
                 child: ElevatedButton(
 
-                  onPressed: () {
+                  onPressed: () async {
+
+                    await playSound(
+                      'audio/click_sound.wav',
+                    );
+
                     answerQuestion(answer);
                   },
 
@@ -449,5 +622,17 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    if (currentQuestionIndex >=
+        questions.length) {
+
+      return buildResultScreen();
+    }
+
+    return buildQuizScreen();
   }
 }

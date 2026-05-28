@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/screens/category_screen.dart';
 import 'package:quiz_app/screens/questions_screen.dart';
 import 'package:quiz_app/screens/start_screen.dart';
 
@@ -28,10 +29,25 @@ class _QuizAppState extends State<QuizApp> {
     );
   }
 
+  // START SCREEN -> CATEGORY SCREEN
   void switchScreen() {
 
     setState(() {
+
+      activeScreen = CategoryScreen(
+        selectCategory: startQuiz,
+      );
+
+    });
+  }
+
+  // CATEGORY SCREEN -> QUIZ SCREEN
+  void startQuiz(String category) {
+
+    setState(() {
+
       activeScreen = QuestionsScreen();
+
     });
   }
 
@@ -39,16 +55,28 @@ class _QuizAppState extends State<QuizApp> {
   Widget build(BuildContext context) {
 
     return MaterialApp(
+
       debugShowCheckedModeBanner: false,
 
+      theme: ThemeData(
+        scaffoldBackgroundColor:
+            const Color(0xFF1E1E2C),
+      ),
+
       home: Scaffold(
+
         body: Container(
 
           decoration: const BoxDecoration(
+
             gradient: LinearGradient(
+
               colors: [
-                Color.fromARGB(255, 44, 3, 109),
-                Color.fromARGB(255, 88, 24, 168),
+
+                Color(0xFF1E1E2C),
+                Color(0xFF2D1B69),
+                Color(0xFF6C63FF),
+
               ],
 
               begin: Alignment.topLeft,
