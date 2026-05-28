@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:quiz_app/widgets/answer_button.dart';
 import 'package:quiz_app/data/demoquestion.dart';
 
 class QuestionsScreen extends StatefulWidget {
-
   QuestionsScreen({super.key});
 
   @override
@@ -30,30 +28,35 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     });
 
     final correctAnswer =
-        questions[currentQuestionIndex].answers[0];
+        questions[currentQuestionIndex]
+            .answers[0];
 
     if (answer == correctAnswer) {
       score++;
     }
 
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(
+      const Duration(seconds: 1),
+      () {
 
-      setState(() {
-        currentQuestionIndex++;
-        selectedAnswer = null;
-      });
+        setState(() {
+          currentQuestionIndex++;
+          selectedAnswer = null;
+        });
 
-    });
+      },
+    );
   }
 
   Color getAnswerColor(String answer) {
 
     if (selectedAnswer == null) {
-      return const Color.fromARGB(255, 33, 1, 95);
+      return const Color(0xFF6C63FF);
     }
 
     final correctAnswer =
-        questions[currentQuestionIndex].answers[0];
+        questions[currentQuestionIndex]
+            .answers[0];
 
     if (answer == correctAnswer) {
       return Colors.green;
@@ -63,17 +66,20 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
       return Colors.red;
     }
 
-    return const Color.fromARGB(255, 33, 1, 95);
+    return const Color(0xFF6C63FF);
   }
 
   @override
   Widget build(BuildContext context) {
 
-    if (currentQuestionIndex >= questions.length) {
+    if (currentQuestionIndex >=
+        questions.length) {
 
       return Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment:
+              MainAxisAlignment.center,
+
           children: [
 
             const Icon(
@@ -82,20 +88,34 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
               size: 100,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
 
-            Text(
-              'Your Score: $score/${questions.length}',
-              style: const TextStyle(
+            const Text(
+              'Quiz Completed!',
+
+              style: TextStyle(
                 color: Colors.white,
-                fontSize: 30,
+                fontSize: 34,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
 
-            ElevatedButton(
+            Text(
+              'Your Score: $score/${questions.length}',
+
+              style: const TextStyle(
+                color: Colors.amber,
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
+            ElevatedButton.icon(
+
               onPressed: () {
 
                 setState(() {
@@ -105,7 +125,36 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                 });
 
               },
-              child: const Text('Restart Quiz'),
+
+              icon: const Icon(
+                Icons.restart_alt,
+              ),
+
+              label: const Text(
+                'Restart Quiz',
+              ),
+
+              style:
+                  ElevatedButton.styleFrom(
+
+                backgroundColor:
+                    Colors.amber,
+
+                foregroundColor:
+                    Colors.black,
+
+                padding:
+                    const EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: 15,
+                ),
+
+                shape:
+                    RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(30),
+                ),
+              ),
             ),
           ],
         ),
@@ -119,10 +168,13 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
       width: double.infinity,
 
       child: Container(
-        margin: const EdgeInsets.all(40),
+
+        margin: const EdgeInsets.all(25),
 
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment:
+              MainAxisAlignment.center,
+
           crossAxisAlignment:
               CrossAxisAlignment.stretch,
 
@@ -134,6 +186,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
               style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 18,
+                fontWeight: FontWeight.w500,
               ),
 
               textAlign: TextAlign.center,
@@ -141,38 +194,101 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
             const SizedBox(height: 15),
 
-            LinearProgressIndicator(
-              value:
-                  (currentQuestionIndex + 1) /
-                  questions.length,
+            ClipRRect(
 
-              backgroundColor: Colors.white24,
-              color: Colors.amber,
-              minHeight: 10,
+              borderRadius:
+                  BorderRadius.circular(20),
+
+              child: LinearProgressIndicator(
+
+                value:
+                    (currentQuestionIndex + 1) /
+                    questions.length,
+
+                backgroundColor:
+                    Colors.white24,
+
+                color: Colors.amber,
+
+                minHeight: 12,
+              ),
+            ),
+
+            const SizedBox(height: 50),
+
+            // PREMIUM QUESTION CARD
+            Container(
+
+              padding:
+                  const EdgeInsets.all(30),
+
+              decoration: BoxDecoration(
+
+                borderRadius:
+                    BorderRadius.circular(30),
+
+                color:
+                    const Color.fromARGB(
+                        40, 255, 255, 255),
+
+                border: Border.all(
+                  color: Colors.white24,
+                  width: 1.5,
+                ),
+
+                boxShadow: const [
+
+                  BoxShadow(
+                    color:
+                        Color.fromARGB(
+                            120, 103, 58, 183),
+
+                    blurRadius: 25,
+                    spreadRadius: 3,
+                  ),
+                ],
+              ),
+
+              child: AnimatedSwitcher(
+
+                duration:
+                    const Duration(
+                  milliseconds: 500,
+                ),
+
+                child: Text(
+                  currentQuestion.text,
+
+                  key: ValueKey(
+                    currentQuestion.text,
+                  ),
+
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight:
+                        FontWeight.bold,
+
+                    height: 1.4,
+                  ),
+
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
 
             const SizedBox(height: 40),
 
-            Text(
-              currentQuestion.text,
-
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
-
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 30),
-
-            ...currentQuestion.shuffledAnswers
+            ...currentQuestion
+                .shuffledAnswers
                 .map((answer) {
 
               return Padding(
+
                 padding:
-                    const EdgeInsets.only(bottom: 12),
+                    const EdgeInsets.only(
+                  bottom: 15,
+                ),
 
                 child: ElevatedButton(
 
@@ -189,31 +305,43 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                     foregroundColor:
                         Colors.white,
 
+                    elevation: 12,
+
+                    shadowColor:
+                        Colors.deepPurple,
+
                     padding:
                         const EdgeInsets.symmetric(
-                      vertical: 14,
+                      vertical: 18,
                       horizontal: 20,
                     ),
 
                     shape:
                         RoundedRectangleBorder(
+
                       borderRadius:
-                          BorderRadius.circular(30),
+                          BorderRadius.circular(
+                        25,
+                      ),
                     ),
                   ),
 
                   child: Text(
+
                     answer,
-                    textAlign: TextAlign.center,
+
+                    textAlign:
+                        TextAlign.center,
 
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
+                      fontWeight:
+                          FontWeight.w600,
                     ),
                   ),
                 ),
               );
             }),
-
           ],
         ),
       ),
