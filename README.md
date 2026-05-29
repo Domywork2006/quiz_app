@@ -1,16 +1,51 @@
-# quiz_app
+# Quiziknow
 
-A new Flutter project.
+A modern Flutter quiz application with Firebase integration.
+
+## Features
+
+* Interactive quiz experience
+* Multiple categories
+* Timer-based questions
+* Score tracking
+* Result summary screen
+* Sound effects
+* Modern UI
+* Firebase integration
+* Firestore leaderboard
+
+## Tech Stack
+
+* Flutter
+* Dart
+* Firebase
+* Cloud Firestore
+* Audioplayers
+
+## Project Structure
+
+lib/
+├── screens/
+├── services/
+├── widgets/
+├── data/
+└── main.dart
+
+## Future Enhancements
+
+* User Authentication
+* Multiplayer Quiz
+* Achievement System
+* Dark/Light Themes
+* Question API Integration
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1. Clone the repository
+2. Run flutter pub get
+3. Configure Firebase
+4. Run flutter run
 
-A few resources to get you started if this is your first Flutter project:
+## Author
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Vaishnav R
